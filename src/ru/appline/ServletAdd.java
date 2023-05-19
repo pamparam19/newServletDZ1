@@ -18,51 +18,33 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import static ru.appline.utils.Utils.readInputJson;
 
-@WebServlet(urlPatterns = "/add")
+@WebServlet(urlPatterns = "/addUser")
 public class ServletAdd extends HttpServlet {
 
     private AtomicInteger counter = new AtomicInteger(4);
     Model model = Model.getInstance();
     Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
-
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
         request.setCharacterEncoding("UTF-8");
-        response.setCharacterEncoding("UTF-8");
+        response.setContentType("application/json; charset=utf-8");
         PrintWriter pw = response.getWriter();
 
-        if (request.getParameter("name") == null) {
-            StringBuffer sb = new StringBuffer();
+        StringBuffer sb = new StringBuffer();
 
-            readInputJson(sb,request);
+        readInputJson(sb, request);
 
-            JsonObject jobj = gson.fromJson(String.valueOf(sb), JsonObject.class);
+        JsonObject jobj = gson.fromJson(String.valueOf(sb), JsonObject.class);
 
-            String name = jobj.get("name").getAsString();
-            String surname = jobj.get("surname").getAsString();
-            double salary = jobj.get("salary").getAsDouble();
+        String name = jobj.get("name").getAsString();
+        String surname = jobj.get("surname").getAsString();
+        double salary = jobj.get("salary").getAsDouble();
 
-            User user = new User(name, surname, salary);
-            model.add(user, counter.getAndIncrement());
-            response.setContentType("application/json; charset=utf-8");
+        User user = new User(name, surname, salary);
+        model.add(user, counter.getAndIncrement());
 
-            pw.print(gson.toJson(model.getFromList()));
-        } else {
-            String name = request.getParameter("name");
-            String surname = request.getParameter("surname");
-            double salary = Double.parseDouble(request.getParameter("salary"));
 
-            User user = new User(name, surname, salary);
-            model.add(user, counter.getAndIncrement());
-            response.setContentType("text/html; charset=utf-8");
+        pw.print(gson.toJson(model.getFromList()));
 
-            pw.print("<html>" +
-                    "<h3>Пользователь " + name + " " +
-                    surname + " с зарплатой = " + salary +
-                    " успешно создан</h3>" +
-                    "<a href=\"addUser.html\">Создать нового пользователя</a><br/>" +
-                    "<a href=\"index.jsp\">Домой<a/>" +
-                    "</html>");
-        }
     }
 }
